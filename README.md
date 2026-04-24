@@ -157,7 +157,7 @@ sequenceDiagram
 flowchart LR
     subgraph "Short URL 상태 전이"
         A["생성됨<br/>used: false"] -->|"첫 접속"| B["사용됨<br/>used: true"]
-        B -->|"즉시"| C["삭제됨<br/>(Store에서 제거)"]
+        B -->|"즉시"| C["삭제됨<br/>(shortUrlStore 삭제)"]
         A -->|"5분 경과"| D["만료됨"]
         D -->|"접속 시"| C
     end
