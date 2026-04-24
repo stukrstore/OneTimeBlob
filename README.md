@@ -37,9 +37,9 @@ flowchart TD
 
 | Environment | Storage Account | Path |
 |---|---|---|
-| PRD | stneuprdex | api/audience/{id}/ |
-| STG | stneustgex | api/audience/{id}/ |
-| DEV | stneudevex | api/audience/{id}/ |
+| PRD | xxxxxprdex | api/audience/{id}/ |
+| STG | xxxxxstgex | api/audience/{id}/ |
+| DEV | xxxxxdevex | api/audience/{id}/ |
 
 ### DW Table
 
@@ -136,3 +136,89 @@ NodeJS/BlobOneTimeAPI/
 │   └── blob.js           # Blob upload + SAS URL generation
 └── README.md
 ```
+
+## Blob Lifecycle Management Policy
+
+One-time URL로 생성된 파일은 일정 기간 후 자동 삭제되도록 Azure Blob Storage Lifecycle Management Policy를 설정합니다.
+
+### Azure Portal에서 설정
+
+1. Azure Portal → Storage Account → **Data management** → **Lifecycle management**
+2. **+ Add a rule** 클릭
+3. 아래와 같이 설정:
+
+| 항목 | 값 |
+|---|---|
+| Rule name | `delete-audience-after-7days` |
+| Rule scope | Limit blobs with filters |
+| Blob type | Block blobs |
+| Blob subtype | Base blobs |
+| Prefix match | `api/audience/` |
+| Days after last modification | `7` |
+| Action | Delete the blob |
+
+### Azure CLI로 설정
+
+```bash
+az storage account management-policy create \
+  --account-name <STORAGE_ACCOUNT> \
+  --resource-group <RESOURCE_GROUP> \
+  --policy @lifecycle-policy.json
+```
+
+`lifecycle-policy.json`:
+
+```json
+{
+  "rules": [
+    {
+      "enabled": true,
+      "name": "delete-audience-after-7days",
+      "type": "Lifecycle",
+      "definition": {
+        "actions": {
+          "baseBlob": {
+            "delete": {
+              "daysAfterModificationGreaterThan": 7
+            }
+          }
+        },
+        "filters": {
+          "blobTypes": ["blockBlob"],
+          "prefixMatch": ["api/audience/"]
+        }
+      }
+    }
+  ]
+}
+```
+
+### Terraform으로 설정
+
+```hcl
+resource "azurerm_storage_management_policy" "audience_cleanup" {
+  storage_account_id = azurerm_storage_account.this.id
+
+  rule {
+    name    = "delete-audience-after-7days"
+    enabled = true
+
+    filters {
+      prefix_match = ["api/audience/"]
+      blob_types   = ["blockBlob"]
+    }
+
+    actions {
+      base_blob {
+        delete_after_days_since_modification_greater_than = 7
+      }
+    }
+  }
+}
+```
+
+### 참고사항
+
+- Lifecycle policy는 **하루 1회** 실행되므로 정확히 7일이 아닌 7~8일 사이에 삭제될 수 있음
+- `api/audience/` prefix에만 적용되므로 다른 컨테이너 데이터에는 영향 없음
+- 환경별(PRD/STG/DEV) Storage Account 각각에 동일하게 설정 필요
