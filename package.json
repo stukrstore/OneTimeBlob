@@ -1,0 +1,17 @@
+{
+  "name": "blob-onetime-api",
+  "version": "1.0.0",
+  "description": "Databricks SQL query → ADLS Gen2 Blob upload → One-time SAS URL generation API",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "dependencies": {
+    "@azure/identity": "^4.0.0",
+    "@azure/storage-blob": "^12.17.0",
+    "@databricks/sql": "^1.8.0",
+    "dotenv": "^16.3.0",
+    "express": "^4.18.0"
+  }
+}
