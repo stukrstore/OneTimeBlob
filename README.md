@@ -26,7 +26,7 @@ flowchart TD
 
 ## Infrastructure
 
-- **Databricks Workspace**: https://{databricks-host}
+- **Databricks Workspace**: https://{databricks-host}.azuredatabricks.net
 - **Blob Storage**: https://{blob-host}.dfs.core.windows.net/
 - **Authentication**: Azure Managed Identity
   - Local: VM Managed Identity
@@ -37,9 +37,7 @@ flowchart TD
 
 | Environment | Storage Account | Path |
 |---|---|---|
-| PRD | xxxxxprdex | api/audience/{id}/ |
-| STG | xxxxxstgex | api/audience/{id}/ |
-| DEV | xxxxxdevex | api/audience/{id}/ |
+| DEV | {blob-host} | api/audience/{id}/ |
 
 ## Setup
 
