@@ -26,8 +26,8 @@ flowchart TD
 
 ## Infrastructure
 
-- **Databricks Workspace**: https://adb-1949729781658890.10.azuredatabricks.net
-- **Blob Storage**: https://mskrblobonetime.dfs.core.windows.net/
+- **Databricks Workspace**: https://{databricks-host}
+- **Blob Storage**: https://{blob-host}.dfs.core.windows.net/
 - **Authentication**: Azure Managed Identity
   - Local: VM Managed Identity
   - Production: AKS Workload Identity (UAMI)
@@ -63,7 +63,7 @@ cp .env.example .env
 |---|---|---|
 | `DATABRICKS_HOST` | Databricks workspace URL | (required) |
 | `DATABRICKS_HTTP_PATH` | SQL Warehouse HTTP path | (required) |
-| `STORAGE_ACCOUNT` | Azure Storage account name | `mskrblobonetime` |
+| `STORAGE_ACCOUNT` | Azure Storage account name | `{blob-host}` |
 | `STORAGE_CONTAINER` | Blob container name | `api` |
 | `SAS_EXPIRY_MINUTES` | SAS URL expiry time (minutes) | `5` |
 | `PORT` | Server port | `3000` |
@@ -94,8 +94,8 @@ npm run dev      # development (auto-reload)
 
 ```json
 {
-    "location": "abfss://api@mskrblobonetime.dfs.core.windows.net/audience/100/data.csv",
-    "one-time-url": "https://mskrblobonetime.blob.core.windows.net/api/audience/100/data.csv?sv=..."
+    "location": "abfss://api@{blob-host}.dfs.core.windows.net/audience/100/data.csv",
+    "one-time-url": "https://{blob-host}.blob.core.windows.net/api/audience/100/data.csv?sv=..."
 }
 ```
 
