@@ -4,18 +4,24 @@ Databricks SQL 쿼리 결과를 ADLS Gen2 Blob에 저장하고, One-time SAS URL
 
 ## Architecture
 
-```
-Client → POST /api/getOnetimeURL
-           ↓
-     Databricks SQL 쿼리 실행 (Azure AD Token 인증)
-           ↓
-     결과를 CSV로 변환
-           ↓
-     ADLS Gen2 Blob 업로드 (Managed Identity)
-           ↓
-     User Delegation SAS URL 생성 (5분 만료)
-           ↓
-     { location, one-time-url } 반환
+```mermaid
+flowchart TD
+    A["Client"] -->|"POST /api/getOnetimeURL<br/>{ query, id, useShortUrl }"| B["Express API Server"]
+    B -->|"Azure AD Token<br/>(DefaultAzureCredential)"| C["Databricks SQL Warehouse"]
+    C -->|"Query Result"| B
+    B -->|"CSV 변환"| D["ADLS Gen2 Blob Storage<br/>api/audience/{id}/data.csv"]
+    D -->|"Upload 완료"| E{"useShortUrl?"}
+    E -->|"Yes"| F["Short URL 생성<br/>/s/{code}<br/>(1회용, 5분 만료)"]
+    E -->|"No"| G["SAS URL만 반환"]
+    F --> H["Response<br/>{ location, sas-url, short-url }"]
+    G --> H
+
+    style A fill:#4a90d9,color:#fff
+    style B fill:#f5a623,color:#fff
+    style C fill:#7b68ee,color:#fff
+    style D fill:#28a745,color:#fff
+    style F fill:#e74c3c,color:#fff
+    style H fill:#17a2b8,color:#fff
 ```
 
 ## Infrastructure
